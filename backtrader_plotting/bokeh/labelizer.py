@@ -71,48 +71,52 @@ def line2str(line, owner):
 
 
 def label(obj, targets=True):
-    if isinstance(obj, (bt.IndicatorBase, bt.ObserverBase)):
-        primary = obj.plotlabel()
-    elif isinstance(obj, bt.LinesOperation):
-        op = _operator2string(obj.operation)
-        primary = f'LineOp{op}'
-    elif isinstance(obj, bt.linebuffer._LineDelay):
-        primary = _label_datafeed(obj.a._owner) + '^' + _get_line_alias(obj.a, obj.a._owner) + f'({obj.ago})'
-    elif isinstance(obj, bt.LineSeriesStub):
-        primary = line2str(obj.lines[0], obj._owner)
-    elif isinstance(obj, bt.AbstractDataBase):
-        primary = _label_datafeed(obj)
-    elif isinstance(obj, bt.LineBuffer):
-        if isinstance(obj._owner, bt.AbstractDataBase):
-            prefix = _label_datafeed(obj._owner)
-        elif isinstance(obj._owner, bt.MultiCoupler):
-            prefix = label(obj._owner.data)
-        else:
-            prefix = obj._owner.plotlabel()
-        primary = prefix + '^' + _get_line_alias(obj, obj._owner)
-    elif isinstance(obj, bt.MultiCoupler):
-        primary = f'Coupler'
-    elif isinstance(obj, (int, float)):  # scalar
-        return str(obj)
-    else:
-        raise RuntimeError(f'Unsupported type: {obj.__class__.__name__}')
-
-    # targets
-    target_datas = []
-    if targets:
-        if isinstance(obj, (bt.Indicator, bt.Observer, bt.MultiCoupler)):
-            target_datas = obj.datas
+   try:
+        if isinstance(obj, (bt.IndicatorBase, bt.ObserverBase)):
+            primary = obj.plotlabel()
         elif isinstance(obj, bt.LinesOperation):
-            target_datas = [obj.a, obj.b]
-        elif isinstance(obj._owner, bt.Indicator):
-            target_datas = obj._owner.datas
+            op = _operator2string(obj.operation)
+            primary = f'LineOp{op}'
+        elif isinstance(obj, bt.linebuffer._LineDelay):
+            primary = _label_datafeed(obj.a._owner) + '^' + _get_line_alias(obj.a, obj.a._owner) + f'({obj.ago})'
+        elif isinstance(obj, bt.LineSeriesStub):
+            primary = line2str(obj.lines[0], obj._owner)
+        elif isinstance(obj, bt.AbstractDataBase):
+            primary = _label_datafeed(obj)
+        elif isinstance(obj, bt.LineBuffer):
+            if isinstance(obj._owner, bt.AbstractDataBase):
+                prefix = _label_datafeed(obj._owner)
+            elif isinstance(obj._owner, bt.MultiCoupler):
+                prefix = label(obj._owner.data)
+            else:
+                prefix = obj._owner.plotlabel()
+            primary = prefix + '^' + _get_line_alias(obj, obj._owner)
+        elif isinstance(obj, bt.MultiCoupler):
+            primary = f'Coupler'
+        elif isinstance(obj, (int, float)):  # scalar
+            return str(obj)
+        else:
+            raise RuntimeError(f'Unsupported type: {obj.__class__.__name__}')
 
-    targets = []
-    for d in target_datas:
-        targets.append(label(d))
+        # targets
+        target_datas = []
+        if targets:
+            if isinstance(obj, (bt.Indicator, bt.Observer, bt.MultiCoupler)):
+                target_datas = obj.datas
+            elif isinstance(obj, bt.LinesOperation):
+                target_datas = [obj.a, obj.b]
+            elif isinstance(obj._owner, bt.Indicator):
+                target_datas = obj._owner.datas
 
-    total = primary
-    if len(targets) > 0:
-        total += '@(' + ','.join(targets) + ')'
+        targets = []
+        for d in target_datas:
+            targets.append(label(d))
 
-    return total
+        total = primary
+        if len(targets) > 0:
+            total += '@(' + ','.join(targets) + ')'
+
+        return total
+   except:
+       return str(obj)
+
