@@ -49,7 +49,8 @@ def _label_datafeed(data):
             labels.append(val)
             break
         else:
-            raise RuntimeError(f'Unexpected data type: {data.__class__}')
+            # raise RuntimeError(f'Unexpected data type: {data.__class__}')
+            return "Unidentified"
 
     if len(labels) == 0:
         return "Unidentified"
